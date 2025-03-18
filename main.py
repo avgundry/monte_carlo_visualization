@@ -760,6 +760,18 @@ def strike_price_section():
         st.altair_chart(final_chart, use_container_width=True)
 
     with info_col:
+        # Hide the default delta arrows with CSS
+        st.write(
+            """
+            <style>
+            [data-testid="stMetricDelta"] svg {
+                display: none;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+        
         # Calculate option values at expiration
         final_stock_price = prices[-1]
         call_value = max(0, final_stock_price - strike_price)
@@ -771,8 +783,8 @@ def strike_price_section():
         st.metric(
             label="Call Option",
             value=f"${call_value:.2f}",
-            delta=f"${final_stock_price - strike_price:.2f} from strike" if call_value > 0 else "OTM",
-            delta_color="normal"
+            delta="↓ OTM" if call_value == 0 else f"↑ ${final_stock_price - strike_price:.2f} from strike",
+            delta_color="inverse" if call_value == 0 else "normal"
         )
         st.markdown("""
         <span style='color: rgba(128, 128, 128, 0.6); font-size: 0.8em;'>
@@ -782,14 +794,14 @@ def strike_price_section():
         </span>
         """, unsafe_allow_html=True)
         
-        st.markdown("<hr style='margin: 5px 0px'>", unsafe_allow_html=True)  # Smaller divider
+        st.markdown("<hr style='margin: 5px 0px'>", unsafe_allow_html=True)
         
         # More compact put option info
         st.metric(
             label="Put Option",
             value=f"${put_value:.2f}",
-            delta=f"${strike_price - final_stock_price:.2f} from strike" if put_value > 0 else "OTM",
-            delta_color="normal"
+            delta="↓ OTM" if put_value == 0 else f"↑ ${strike_price - final_stock_price:.2f} from strike",
+            delta_color="inverse" if put_value == 0 else "normal"
         )
         st.markdown("""
         <span style='color: rgba(128, 128, 128, 0.6); font-size: 0.8em;'>

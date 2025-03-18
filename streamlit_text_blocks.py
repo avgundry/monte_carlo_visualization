@@ -28,18 +28,18 @@ def text_block_2():
 def text_block_3():
     # Monte-Carlo Simulation.
     st.write("# Monte Carlo Simulation with Metropolis-Hastings")
-    st.write(r"In our Pepsi example, it's easy to see that the option is worth \$15, so we should buy it. However, in the real world, we don't know the exact value of the option. Instead, we can use a Monte Carlo simulation to estimate the value of the option.")
-    st.write("Let's start with a simple coin tossing example to demonstrate how a Monte Carlo simulation works.")
-    st.write("Say we have a coin that has an unknown probability $p$ of landing heads. An intuitive way to estimate $p$ is to flip the coin many times and take the average of the number of heads.")
+    st.write(r"In our strike price simulation, it's easy to see exactly what the option is worth, and when we should buy or sell it. However, in the real world, we often can't determine the exact value of the option. Instead, we can use a Monte Carlo simulation to estimate the value of the option.")
+    st.write("Let's start with a simple example to demonstrate how a Monte Carlo simulation works. To make things as simple as possible, we'll only concern ourselves with two outcomes: whether the option will be in the money or out of the money at the expiration date. This is easy to simulate as a coin toss.")
+    st.write("Say we have a coin that has an unknown probability $p$ of landing heads (in this analogy, coming up as ITM). An intuitive way to estimate $p$ is to flip the coin many times and take the average of the number of heads.")
     st.write("At its core, this is what a Monte Carlo simulation does: it repeatedly draws random samples from a probability distribution and then takes the average of the function evaluated at those samples.")
     st.write("Let's demonstrate this now using code. For demonstration purposes, we'll begin by randomly generating a probability $p$ of landing heads, between 0 and 1 - in the real world, we wouldn't know what $p$ is!")
 
 def volatility_text_block():
     st.write(r"# Volatility($\sigma$):")
-    st.write("Volatility measures how much the price of a stock fluctuates over time. When analyzing options, there are two key types of volatility: implied volatility (IV) and historical volatility (HV).")
+    st.write("Volatility measures how much the price of a stock fluctuates over time. It can be conceptualized as the amount we expect a stock's price to fluctuate around the mean at any given time. When analyzing options, there are two key types of volatility: implied volatility (IV) and historical volatility (HV).")
     st.write("- IV reflects the market's expectation of future price fluctuations. It measures how likely a stock is to experience major price swings (in either direction) before the option expires. ")
     st.write("- HV measures how much a stock's price has actually fluctuated in the past over a given periold (e.g., 30 days, 60 days, or 1 year). It is calculated using the standard deviation of past returns.")
-    st.write(" Below is a visualization that calculates the HV of a stock based how it's price has fluctuated over the past 30 days.")
+    st.write("Below is a visualization that calculates the HV of a stock based how it's price has fluctuated over the past 30 days. This shows the volatility as a bar around the mean price, indicating the average historical fluctuation around that price.")
     st.write("Try dragging each point to see how the volatility changes .")
 
 def volatility_text_block2():

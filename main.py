@@ -34,12 +34,12 @@ st.sidebar.title("Navigation")
 selected_section = st.sidebar.radio("Go to section:", [
     "Introduction",
     "Options Basics",   
-    "Volatility",
-    "Drift",
     "Monte Carlo Simulations",
     "Paths",
     "Iterations",
     "Burn In",
+    "Volatility",
+    "Drift",
     "Conclusion"
 ])
 
@@ -70,7 +70,7 @@ def coin_simulation_section():
 
     # Animation speed slider: iterations per second
     animation_speed = st.slider("Animation Speed (iterations per second)",
-                                min_value=1, max_value=1000, value=20, step=1, key="animation_speed")
+                                min_value=1, max_value=60, value=20, step=1, key="animation_speed")
 
     # Control buttons arranged in columns.
     col1, col2 = st.columns(2)
@@ -814,8 +814,10 @@ def drift_section():
     st.write("- If drift is positive, a stock is expected to have an increase in value over time.")
     st.write("- If drift is neutral, a stock is expected to have no change in value over time.")
     st.write("- If drift is negative, a stock is expected to have a decrease in value over time.")
+    st.write("Now that we've shown how Monte Carlo simulations can be used to estimate the value of an option, let's look at how drift affects its price.")
+    st.write("Drag the slider below to change the drift of the stock price in the simulation.")
 
-    drift = st.slider("Drift (μ)", -0.5, 0.5, 0.05, step=0.01)  
+    drift = st.slider("Drift (μ)", -1.0, 1.0, 0.05, step=0.01)  
 
     # Fixed parameters
     initial_price = 100  # Starting asset price S0
@@ -830,7 +832,7 @@ def drift_section():
 
     for t in range(1, num_steps + 1):
         z = np.random.standard_normal()
-        prices[t] = prices[t-1] * np.exp((2 * drift - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * z)  # 2× Drift to amplify effect
+        prices[t] = prices[t-1] * np.exp((drift - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * z)  # 2× Drift to amplify effect
 
     # Create DataFrame for Altair
     df = pd.DataFrame({

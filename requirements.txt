@@ -1,0 +1,7 @@
+# Project-level imports
+altair
+numpy
+streamlit
+pandas
+streamlit.components.v1
+scipy.stats

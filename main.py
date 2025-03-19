@@ -728,7 +728,7 @@ def strike_price_section():
             .mark_area()
             .encode(
                 x=alt.X("Day:Q", title="Day", scale=alt.Scale(domain=[1, num_days])),
-                y=alt.Y("Stock Price:Q", title="Stock/Strike Price ($)", scale=alt.Scale(nice=False)),
+                y=alt.Y("Stock Price:Q", title="Stock/Strike Price ($)"),
                 y2="Base:Q",
                 color=alt.Color(
                     "ITM:N",

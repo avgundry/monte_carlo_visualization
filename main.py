@@ -709,7 +709,16 @@ def strike_price_section():
     df_upsampled["ITM"] = df_upsampled["Stock Price"] >= df_upsampled["Base"]
     df_upsampled["ITM"] = df_upsampled["ITM"].replace({True: "ITM", False: "OTM"})  
 
-    # Create main columns for layout
+    # Create main columns for layout with a fixed height container
+    st.markdown("""
+        <style>
+        .fixed-height {
+            height: 500px;
+            overflow: auto;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
     chart_col, info_col = st.columns([0.7, 0.3])  # 70% chart, 30% info
 
     with chart_col:
@@ -719,7 +728,7 @@ def strike_price_section():
             .mark_area()
             .encode(
                 x=alt.X("Day:Q", title="Day", scale=alt.Scale(domain=[1, num_days])),
-                y=alt.Y("Stock Price:Q", title="Stock/Strike Price ($)"),
+                y=alt.Y("Stock Price:Q", title="Stock/Strike Price ($)", scale=alt.Scale(nice=False)),
                 y2="Base:Q",
                 color=alt.Color(
                     "ITM:N",
@@ -744,11 +753,18 @@ def strike_price_section():
 
         # Combine charts and display
         final_chart = (area_chart + strike_line).properties(
-            width=800, height=400, title="ITM vs. OTM for Call Option"
+            width="container",  # Make chart responsive to container width
+            height=520,  # Fixed height to match info column
+            title="ITM vs. OTM for Call Option"
         )
+        
+        # Use container width but with fixed height
         st.altair_chart(final_chart, use_container_width=True)
 
     with info_col:
+        # Add padding at top to align with chart title
+        st.markdown("<div style='height: 50px'></div>", unsafe_allow_html=True)
+        
         # Hide the default delta arrows with CSS
         st.write(
             """

@@ -2,10 +2,6 @@ import altair as alt
 import numpy as np
 import pandas as pd
 
-import numpy as np
-import pandas as pd
-import altair as alt
-
 
 def build_mh_charts(
     chain_df, 
@@ -60,17 +56,20 @@ def build_mh_charts(
     ).encode(
         y=alt.Y(
             'state:Q',
-            bin=alt.Bin(maxbins=20, extent=[0, 1]),
+            bin=alt.Bin(maxbins=40, extent=[0, 1]),
             title='p',
             scale=alt.Scale(domain=[0, 1]),
-            axis=alt.Axis(values=[x/10 for x in range(11)], labelOverlap=False)
+            axis=alt.Axis(values=[x/20 for x in range(21)], labelOverlap=False)
         ),
         x=alt.X('count()', title='Count'),
     ).properties(width=200, height=300, title="Histogram of Accepted p-values")
 
     # Red rule for the true p-value
     rule_df = pd.DataFrame({'p_true': [p_true]})
-    true_p_rule = alt.Chart(rule_df).mark_rule(color='red').encode(
+    true_p_rule = alt.Chart(rule_df).mark_rule(
+        color='red',
+        strokeDash=[6, 4]  # Creates a dashed line pattern: 6 pixels on, 4 pixels off
+    ).encode(
         y=alt.Y('p_true:Q', scale=alt.Scale(domain=[0, 1]))
     )
     hist_with_rule = hist + true_p_rule
@@ -131,6 +130,17 @@ def build_mh_charts(
             range=['gray', 'blue']  # Gray for burn-in, blue for post-burn-in
         ))
     )
+
+    accepted_line = alt.Chart(accepted_pts).mark_line().encode(
+        x=alt.X("iteration:Q", scale=alt.Scale(domain=fixed_x_domain)),
+        y=alt.Y("state:Q", scale=alt.Scale(domain=[0, 1])),
+        color=alt.Color('phase:N', scale=alt.Scale(
+            domain=['Burn-in', 'Post Burn-in'],
+            range=['orange', 'blue']  # Gray for burn-in, blue for post-burn-in
+        )) 
+    )
+
+    accepted_chart = accepted_line + accepted_chart
     
     # Grey ticks for rejected proposals - use fixed colors instead of phase-based coloring
     # to prevent rejections inheriting colors from their associated line
@@ -238,7 +248,12 @@ def build_mh_charts(
             width=400, height=300, 
             title=f"MH Trace (iterations 1-{i})"
         )
+
+    
+
+    # Add a dashed line at the true p-value
+    trace_with_rule = trace_with_dist + true_p_rule
     
     # Concatenate for final chart
-    final_chart = alt.hconcat(hist_with_rule, trace_with_dist)
+    final_chart = alt.hconcat(hist_with_rule, trace_with_rule)
     return final_chart

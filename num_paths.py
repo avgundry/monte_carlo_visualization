@@ -5,8 +5,21 @@ import altair as alt
 from scipy.stats import norm
 
 def display_monte_carlo_graph():
+    # Hide fullscreen buttons
+    st.markdown("""
+        <style>
+        [aria-label="Fullscreen"] {
+            display: none;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     # --- Controls above the graph ---
     st.write("### Simulation Settings")
+    st.info("""
+            Instructions:
+            \n Either use the +/- buttons or type in a number below to change the number of simulated paths.
+            """)
 
     col1, col2, col3 = st.columns(3)
 
@@ -35,11 +48,18 @@ def display_monte_carlo_graph():
     # Generate paths using geometric Brownian motion
     for t in range(1, num_steps + 1):
         z = np.random.standard_normal(int(num_paths))
-        paths[t] = paths[t-1] * np.exp((drift - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * z)
+        paths[t] = paths[t-1] * np.exp((interest_rate - 0.5 * volatility**2) * dt + volatility * np.sqrt(dt) * z)  # Changed drift to interest_rate
 
     # Monte Carlo option pricing
     call_payoffs = np.maximum(paths[-1] - strike, 0)
     mc_option_price = np.exp(-interest_rate * T) * np.mean(call_payoffs)
+
+    # Add standard error calculation
+    mc_std_error = np.std(call_payoffs) / np.sqrt(num_paths)
+    mc_confidence_interval = (
+        mc_option_price - 1.96 * mc_std_error,
+        mc_option_price + 1.96 * mc_std_error
+    )
 
     # Black-Scholes option pricing
     d1 = (np.log(initial_price / strike) + (interest_rate + 0.5 * volatility**2) * T) / (volatility * np.sqrt(T))
@@ -49,6 +69,8 @@ def display_monte_carlo_graph():
     # Display the computed option prices
     st.write("### Option Prices")
     st.write(f"**Monte Carlo Estimated Option Price:** {mc_option_price:.2f}")
+    # st.write(f"**95% Confidence Interval:** ({mc_confidence_interval[0]:.2f}, {mc_confidence_interval[1]:.2f})")
+    # st.write(f"**Standard Error:** {mc_std_error:.2f}")
     st.write(f"**Black-Scholes Option Price:** {bs_option_price:.2f}")
 
     # --- Visualization section ---
@@ -64,7 +86,19 @@ def display_monte_carlo_graph():
     paths_chart = alt.Chart(df_melted).mark_line(opacity=0.3).encode(
         x=alt.X("time:Q", title="Time (years)"),
         y=alt.Y("Price:Q", title="Underlying Price"),
-        color=alt.Color("Simulation:N", legend=None)
+        color=alt.Color("Simulation:N", legend=None),
+        tooltip=alt.value(None) # disable this tooltip to allow hover chart to take over
+    )
+
+    # Invisible thick lines for better hover detection
+    hover_chart = alt.Chart(df_melted).mark_line(
+        strokeWidth=10,  # Much thicker line
+        opacity=0        # Completely transparent
+    ).encode(
+        x="time:Q",
+        y="Price:Q",
+        color=alt.Color("Simulation:N", legend=None),
+        tooltip=["time:Q", "Price:Q", "Simulation:N"]  # Added more detailed tooltip
     )
 
     # Overlay mean path in bold red
@@ -74,10 +108,12 @@ def display_monte_carlo_graph():
     )
 
     # Combine charts
-    chart = (paths_chart + mean_chart).properties(
+    chart = (paths_chart + hover_chart + mean_chart).properties(
         width=700,
         height=400,
         title="Monte Carlo Simulation: Colored Paths with Mean Price",
+    ).configure_view(
+        strokeOpacity=0
     )
 
     st.altair_chart(chart, use_container_width=True)

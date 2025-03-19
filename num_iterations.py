@@ -8,6 +8,12 @@ def display_monte_carlo_graph():
     # --- Controls above the graph ---
     st.write("### Simulation Settings")
 
+    st.info("""
+            Instructions:
+            \nType or use the +/- buttons to change the number of iterations.
+            \nDrag the slider to change the number of time steps.
+            """)
+
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -24,7 +30,7 @@ def display_monte_carlo_graph():
     with col3:
         strike = 100
 
-    st.write("---")  # Separator before the graph
+    # st.write("---")  # Separator before the graph
 
     dt = T / num_steps
 
@@ -48,8 +54,11 @@ def display_monte_carlo_graph():
 
     # Display the computed option prices
     st.write("### Option Prices")
-    st.write(f"**Monte Carlo Estimated Option Price:** {mc_option_price:.2f}")
-    st.write(f"**Black-Scholes Option Price:** {bs_option_price:.2f}")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"**Monte Carlo Estimated Option Price:** {mc_option_price:.2f}")
+    with col2:
+        st.write(f"**Black-Scholes Option Price:** {bs_option_price:.2f}")
 
     # --- Visualization section ---
     df = pd.DataFrame(paths)
@@ -64,20 +73,32 @@ def display_monte_carlo_graph():
     paths_chart = alt.Chart(df_melted).mark_line(opacity=0.3).encode(
         x=alt.X("time:Q", title="Time (years)"),
         y=alt.Y("Price:Q", title="Underlying Price"),
-        color=alt.Color("Simulation:N", legend=None)
+        color=alt.Color("Simulation:N", legend=None),
+        tooltip=alt.value(None)
+    )
+
+    hover_chart = alt.Chart(df_melted).mark_line(
+        strokeWidth=5,  # Much thicker line for hovering over
+        opacity=0        # Completely transparent
+    ).encode(
+        x=alt.X("time:Q", title="Time (years)"),
+        y=alt.Y("Price:Q", title="Underlying Price"),
     )
 
     # Overlay mean path in bold red
     mean_chart = alt.Chart(df_mean).mark_line(color="red", size=3).encode(
-        x="time:Q",
-        y="Price:Q",
+        x=alt.X("time:Q", title="Time (years)"),
+        y=alt.Y("Price:Q", title="Underlying Price"),
     )
 
     # Combine charts
-    chart = (paths_chart + mean_chart).properties(
+    chart = (paths_chart + hover_chart + mean_chart).properties(
         width=700,
         height=400,
         title="Monte Carlo Simulation: Colored Paths with Mean Price",
+    ).configure_axis(
+        gridOpacity=0.4,  # Increased opacity
+        gridColor='#666666'  # Darker, more visible gray
     )
 
     st.altair_chart(chart, use_container_width=True)

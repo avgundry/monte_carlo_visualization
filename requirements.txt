@@ -3,4 +3,5 @@ altair
 numpy
 streamlit
 pandas
-scipy
+streamlit.components.v1
+scipy.stats

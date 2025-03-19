@@ -62,19 +62,28 @@ def display_monte_carlo_graph():
 
     # Paths chart
     paths_chart = alt.Chart(df_melted).mark_line(opacity=0.3).encode(
-        x=alt.X("time:Q", title="Time (years)"),
-        y=alt.Y("Price:Q", title="Underlying Price"),
-        color=alt.Color("Simulation:N", legend=None)
+        x=alt.X("time:Q", title="Time (years)", scale=alt.Scale(nice=False)),
+        y=alt.Y("Price:Q", title="Underlying Price", scale=alt.Scale(nice=False)),
+        color=alt.Color("Simulation:N", legend=None),
+        tooltip=alt.value(None)
     )
 
     # Overlay mean path in bold red
     mean_chart = alt.Chart(df_mean).mark_line(color="red", size=3).encode(
-        x="time:Q",
-        y="Price:Q",
+        x=alt.X("time:Q", title="Time (years)", scale=alt.Scale(nice=False)),
+        y=alt.Y("Price:Q", title="Mean Underlying Price", scale=alt.Scale(nice=False)),
+    )
+
+    hover_chart = alt.Chart(df_melted).mark_line(
+        strokeWidth=5,  # Much thicker line for hovering over
+        opacity=0        # Completely transparent
+    ).encode(
+        x=alt.X("time:Q", title="Time (years)", scale=alt.Scale(nice=False)),
+        y=alt.Y("Price:Q", title="Underlying Price", scale=alt.Scale(nice=False)),
     )
 
     # Combine charts
-    chart = (paths_chart + mean_chart).properties(
+    chart = (paths_chart + hover_chart + mean_chart).properties(
         width=700,
         height=400,
         title="Monte Carlo Simulation: Colored Paths with Mean Price",
